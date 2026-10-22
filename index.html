@@ -12,6 +12,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Suppress benign Vite HMR WebSocket connection failure notices in iframe / Cloud Run environment
+      (function() {
+        var isWsError = function(err) {
+          if (!err) return false;
+          var msg = typeof err === 'string' ? err : (err.message || err.reason || '');
+          return /websocket/i.test(msg) || /ws.*closed/i.test(msg) || /failed to connect to websocket/i.test(msg);
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+          if (isWsError(event.reason)) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+          }
+        });
+        window.addEventListener('error', function(event) {
+          if (isWsError(event.error) || isWsError(event.message)) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+          }
+        });
+      })();
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900">
     <div id="root"></div>

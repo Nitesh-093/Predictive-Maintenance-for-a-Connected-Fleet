@@ -7,6 +7,8 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { GoogleGenAI, Modality } from '@google/genai';
 
 dotenv.config();
+// Ensure Vite HMR is disabled in dev server to avoid broken WebSocket attempts in iframe/Cloud Run
+process.env.DISABLE_HMR = 'true';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -160,6 +162,8 @@ server.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (ws) => {
       wss.emit('connection', ws, request);
     });
+  } else {
+    socket.destroy();
   }
 });
 
@@ -235,7 +239,7 @@ async function setupServer() {
   if (isDev) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true, hmr: process.env.DISABLE_HMR !== 'true' },
+      server: { middlewareMode: true, hmr: false },
       appType: 'spa',
     });
     app.use(vite.middlewares);

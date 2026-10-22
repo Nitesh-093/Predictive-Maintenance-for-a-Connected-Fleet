@@ -110,7 +110,15 @@ export const FleetVoiceAssistantModal: React.FC<FleetVoiceAssistantModalProps> =
           console.warn('Recognition start failed:', e);
         }
       } else {
-        alert('Voice speech recognition is not supported in this browser. Please type your query.');
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `notice-${Date.now()}`,
+            sender: 'assistant',
+            text: 'Microphone speech recognition is not supported in this browser environment. You can type your question in the text box below.',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          },
+        ]);
       }
     }
   };
