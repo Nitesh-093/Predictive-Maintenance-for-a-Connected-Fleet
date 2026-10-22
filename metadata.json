@@ -2,5 +2,7 @@
   "name": "Self-Healing Fleet: Predictive Maintenance & MLOps Platform",
   "description": "Closed-loop predictive maintenance platform for connected fleets (NASA C-MAPSS turbofan benchmark) featuring sensor streaming, feature engineering, RUL machine learning, rule-based triage work orders, and MLOps retraining.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

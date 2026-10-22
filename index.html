@@ -17,8 +17,16 @@
       (function() {
         var isWsError = function(err) {
           if (!err) return false;
-          var msg = typeof err === 'string' ? err : (err.message || err.reason || '');
+          var msg = typeof err === 'string' ? err : (err.message || err.reason || String(err));
           return /websocket/i.test(msg) || /ws.*closed/i.test(msg) || /failed to connect to websocket/i.test(msg);
+        };
+        var origConsoleError = console.error;
+        console.error = function() {
+          var firstArg = arguments[0];
+          if (firstArg && isWsError(firstArg)) {
+            return;
+          }
+          origConsoleError.apply(console, arguments);
         };
         window.addEventListener('unhandledrejection', function(event) {
           if (isWsError(event.reason)) {

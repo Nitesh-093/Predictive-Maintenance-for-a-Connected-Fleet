@@ -156,6 +156,32 @@ app.post('/api/fleet/tts', async (req, res) => {
 // Setup WebSocket server for Gemini Live API (gemini-3.8-live) real-time voice streaming
 const wss = new WebSocketServer({ noServer: true });
 
+// Setup WebSocket server for Vite dev client handshakes to satisfy HMR connection probes cleanly
+const viteHmrWss = new WebSocketServer({ noServer: true });
+
+viteHmrWss.on('connection', (ws) => {
+  try {
+    ws.send(JSON.stringify({ type: 'connected' }));
+  } catch {
+    // client disconnected before initial payload
+  }
+
+  ws.on('message', (data) => {
+    try {
+      const msg = JSON.parse(data.toString());
+      if (msg.type === 'ping') {
+        ws.send(JSON.stringify({ type: 'pong' }));
+      }
+    } catch {
+      // ignore invalid json or non-ping payloads
+    }
+  });
+
+  ws.on('error', () => {
+    // handle silent socket teardown
+  });
+});
+
 server.on('upgrade', (request, socket, head) => {
   const pathname = request.url ? new URL(request.url, `http://${request.headers.host}`).pathname : '';
   if (pathname === '/api/live' || pathname === '/live') {
@@ -163,7 +189,10 @@ server.on('upgrade', (request, socket, head) => {
       wss.emit('connection', ws, request);
     });
   } else {
-    socket.destroy();
+    // Accept Vite client connection probes so they open successfully and never throw "WebSocket closed without opened"
+    viteHmrWss.handleUpgrade(request, socket, head, (ws) => {
+      viteHmrWss.emit('connection', ws, request);
+    });
   }
 });
 
